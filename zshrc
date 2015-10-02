@@ -1,4 +1,9 @@
 # Set up the prompt
+export ZSH=$HOME/.oh-my-zsh
+
+plugins=(git osx git-prompt history-substring-search zsh-syntax-highlighting)
+
+source $ZSH/oh-my-zsh.sh
 
 autoload -Uz promptinit
 promptinit
@@ -23,8 +28,15 @@ zstyle ':completion:*' completer _expand _complete _correct _approximate
 zstyle ':completion:*' format 'Completing %d'
 zstyle ':completion:*' group-name ''
 zstyle ':completion:*' menu select=2
-zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
-zstyle ':completion:*' list-colors ''
+if whence dircolors > /dev/null; then 
+    eval "$(dircolors -b)"
+    zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+    alias ls='ls --color'
+else 
+    export CLICOLOR=1
+    zstyle ':completion:*' list-colors ''
+fi
+
 zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
 zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=* l:|=*'
 zstyle ':completion:*' menu select=long
@@ -136,7 +148,6 @@ local current_dir='${PWD/#$HOME/~}'
 local git_info='$(git_prompt_info)'
 local prompt_char='$(prompt_char)'
 
-export MAVEN_OPTS=-Xmx1024m
 
 PROMPT="╭─%{$FG[040]%}%n%{$reset_color%} %{$FG[239]%}at%{$reset_color%} %{$FG[033]%}$(box_name)%{$reset_color%} %{$FG[239]%}in%{$reset_color%} %{$terminfo[bold]$FG[226]%}${current_dir}%{$reset_color%}${git_info} %{$FG[239]%}using%{$FG[243]%}${ruby_env}
 ╰─${prompt_char} "
@@ -147,6 +158,22 @@ ZSH_THEME_GIT_PROMPT_DIRTY="%{$FG[202]%}✘✘✘"
 ZSH_THEME_GIT_PROMPT_CLEAN="%{$FG[040]%}✔"
 
 alias gs="git status"
-alias gc="git commit -s"
+alias gc="git commit"
 
-export MORSE_BLENDER=/Applications/Blender.app/Contents/MacOS/blender
+export ANDROID_HOME=~/Developer/.android-sdk-macosx
+export PATH=${PATH}:$ANDROID_HOME/bin
+export PYTHONPATH="/Library/Python/2.7/site-packages:$PYTHONPATH"
+
+# Setup zsh-autosuggestions
+source /Users/Adam/.oh-my-zsh/custom/plugins/zsh-autosuggestions/autosuggestions.zsh
+
+# Enable autosuggestions automatically
+zle-line-init() {
+zle autosuggest-start
+}
+
+zle -N zle-line-init
+
+# use ctrl+t to toggle autosuggestions(hopefully this wont be needed as
+# zsh-autosuggestions is designed to be unobtrusive)
+bindkey '^T' autosuggest-toggle
